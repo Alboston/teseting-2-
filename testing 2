@@ -1,0 +1,42 @@
+let isEmailValid = false; // Flag to track email validity
+
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('form'); // The form ID is 'form'
+  var emailInput = document.getElementById('0'); // The email input field ID is '0'
+
+  form.addEventListener('submit', function(event) {
+    if (!isEmailValid) {
+      event.preventDefault(); // Stop form submission
+      validateEmail(emailInput.value); // Validate email
+    }
+  });
+
+  emailInput.addEventListener('blur', function() {
+    validateEmail(emailInput.value); // Validate email when user leaves the field
+  });
+});
+
+function validateEmail(email) {
+  if (!email) return; // If the email is empty, do nothing
+
+  var apiKey = '76ZMDdKqRPwkMCUQdnCr0okQmyC76vcv'; // Updated API key
+  var apiUrl = 'https://api.reoon.com/email/verify/v1?apikey=' + apiKey + '&email=' + encodeURIComponent(email);
+
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      isEmailValid = data.status === 'success' && data.data.isValid;
+      if (isEmailValid) {
+        console.log('Email is valid');
+      } else {
+        console.error('Email is invalid');
+        alert('Please enter a valid email address.');
+        emailInput.value = ''; // Clear the invalid email
+        isEmailValid = false; // Reset the flag
+      }
+    })
+    .catch(error => {
+      console.error('Error during email validation', error);
+      isEmailValid = false; // Reset the flag in case of an error
+    });
+}
